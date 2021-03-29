@@ -14,10 +14,9 @@ class USBankHolidaysTestCase(unittest.TestCase):
         self.assertIn(datetime.date(2021, 5, 31), holidays)  # Memorial Day
         self.assertIn(datetime.date(2021, 7, 4), holidays)  # Independence Day
         self.assertIn(datetime.date(2021, 9, 6), holidays)  # Labor Day
+        self.assertIn(datetime.date(2021, 10, 11), holidays)  # Columbus Day
+        self.assertIn(datetime.date(2021, 11, 11), holidays)  # Veteran's Day
         self.assertIn(datetime.date(2021, 11, 25), holidays)  # Thanksgiving Day
         self.assertIn(datetime.date(2021, 12, 24), holidays)  # Christmas Day Observed
         self.assertIn(datetime.date(2021, 12, 25), holidays)  # Christmas Day
         self.assertIn(datetime.date(2021, 12, 31), holidays)  # New Year's Eve Observed
-
-        self.assertListEqual(holidays.get_named("Columbus Day"), [])
-        self.assertListEqual(holidays.get_named("Veterans Day"), [])
