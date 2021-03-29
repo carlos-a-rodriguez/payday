@@ -62,11 +62,18 @@ def _is_pay_day(date: datetime.date) -> bool:
 
 
 def _next_pay_day(date: datetime.date) -> datetime.date:
-    pass
+    mom_pay_day = adjusted_mom_pay_day(date.year, date.month)
+    if date < mom_pay_day:  # TODO: what happens if today is a pay day?
+        return mom_pay_day
+    return adjusted_eom_pay_day(date.year, date.month)
 
 
 def _previous_pay_day(date: datetime.date) -> datetime.date:
-    pass
+    mom_pay_day = adjusted_mom_pay_day(date.year, date.month)
+    if date > mom_pay_day:  # TODO: what happens if today is a pay day?
+        return mom_pay_day
+    pre_eom_day = mom_pay_day - datetime.timedelta(days=mom_pay_day.day)
+    return adjusted_eom_pay_day(pre_eom_day.year, pre_eom_day.month)
 
 
 def is_pay_day(date: datetime.date) -> bool:

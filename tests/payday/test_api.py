@@ -49,10 +49,32 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_next_pay_day(self):
-        self.fail("Not Implemented Yet!")
+        today = datetime.date(2021, 3, 1)
+        self.assertEqual(
+            payday.api.next_pay_day(today),
+            today.replace(day=15)
+        )
+
+    def test_next_pay_day_on_pay_day(self):
+        today = datetime.date(2021, 3, 15)
+        self.assertEqual(
+            payday.api.next_pay_day(today),
+            today.replace(day=31)
+        )
 
     def test_previous_pay_day(self):
-        self.fail("Not Implemented Yet!")
+        today = datetime.date(2021, 4, 7)
+        self.assertEqual(
+            payday.api.previous_pay_day(today),
+            payday.api.adjusted_eom_pay_day(year=2021, month=3)
+        )
+
+    def test_previous_pay_day_on_pay_day(self):
+        today = datetime.date(2021, 3, 31)
+        self.assertEqual(
+            payday.api.previous_pay_day(today),
+            payday.api.adjusted_mom_pay_day(year=today.year, month=today.month)
+        )
 
     def test_unadjusted_eom_pay_day(self):
         today = datetime.date(2021, 5, 1)
