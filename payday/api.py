@@ -1,7 +1,11 @@
 """payday APIs"""
 import calendar
 import datetime
+from typing import Generator
+
+import dateutil.rrule
 import numpy as np
+
 from payday.lib.holidays.bank import USBankHolidays
 
 
@@ -61,19 +65,30 @@ def _is_pay_day(date: datetime.date) -> bool:
     return date == adjusted_mom_pay_day(date.year, date.month)
 
 
+def _backward_pay_day_generator(year: int) -> Generator[datetime.date, None, None]:
+    for yr in range(year, datetime.date.min.year - 1, -1):
+        for month in range(12, 0, -1):
+            yield adjusted_eom_pay_day(yr, month)
+            yield adjusted_mom_pay_day(yr, month)
+
+
+def _forward_pay_day_generator(year: int, month: int) -> Generator[datetime.date, None, None]:
+    start = datetime.date(year, month, day=1)
+    for dt in dateutil.rrule.rrule(freq=dateutil.rrule.MONTHLY, dtstart=start):
+        yield adjusted_mom_pay_day(dt.year, dt.month)
+        yield adjusted_eom_pay_day(dt.year, dt.month)
+
+
 def _next_pay_day(date: datetime.date) -> datetime.date:
-    mom_pay_day = adjusted_mom_pay_day(date.year, date.month)
-    if date < mom_pay_day:  # TODO: what happens if today is a pay day?
-        return mom_pay_day
-    return adjusted_eom_pay_day(date.year, date.month)
+    for pay_day in _forward_pay_day_generator(date.year, date.month):
+        if pay_day > date:
+            return pay_day
 
 
 def _previous_pay_day(date: datetime.date) -> datetime.date:
-    mom_pay_day = adjusted_mom_pay_day(date.year, date.month)
-    if date > mom_pay_day:  # TODO: what happens if today is a pay day?
-        return mom_pay_day
-    pre_eom_day = mom_pay_day - datetime.timedelta(days=mom_pay_day.day)
-    return adjusted_eom_pay_day(pre_eom_day.year, pre_eom_day.month)
+    for pay_day in _backward_pay_day_generator(date.year):
+        if date > pay_day:
+            return pay_day
 
 
 def is_pay_day(date: datetime.date) -> bool:
