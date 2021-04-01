@@ -62,6 +62,42 @@ class APITestCase(unittest.TestCase):
             today.replace(day=31)
         )
 
+    def test_pay_day_iter_forward(self):
+        pay_days = list(
+            payday.api.pay_day_iter(
+                datetime.date(2021, 4, 15),
+                days=3,
+                reverse=False,
+            )
+        )
+
+        self.assertListEqual(
+            pay_days,
+            [
+                datetime.date(2021, 4, 30),
+                datetime.date(2021, 5, 14),
+                datetime.date(2021, 5, 28),
+            ]
+        )
+
+    def test_pay_day_iter_reverse(self):
+        pay_days = list(
+            payday.api.pay_day_iter(
+                datetime.date(2021, 3, 10),
+                days=3,
+                reverse=True,
+            )
+        )
+
+        self.assertListEqual(
+            pay_days,
+            [
+                datetime.date(2021, 2, 26),
+                datetime.date(2021, 2, 12),
+                datetime.date(2021, 1, 29),
+            ]
+        )
+
     def test_pay_days_leap_year_and_holiday(self):
         self.assertTupleEqual(
             payday.api.pay_days(2016, 2),
