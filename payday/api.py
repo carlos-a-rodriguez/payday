@@ -1,7 +1,7 @@
 """payday APIs"""
 import calendar
 import datetime
-from typing import Generator
+from typing import Generator, Tuple
 
 import dateutil.rrule
 import numpy as np
@@ -65,30 +65,42 @@ def _is_pay_day(date: datetime.date) -> bool:
     return date == adjusted_mom_pay_day(date.year, date.month)
 
 
-def _backward_pay_day_generator(year: int) -> Generator[datetime.date, None, None]:
-    for yr in range(year, datetime.date.min.year - 1, -1):
-        for month in range(12, 0, -1):
-            yield adjusted_eom_pay_day(yr, month)
-            yield adjusted_mom_pay_day(yr, month)
+def _backward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, None, None]:
+    # current month
+    for pay_day in reversed(pay_days(date.year, date.month)):
+        if pay_day < date:
+            yield pay_day
+
+    # previous months
+    while date.year >= datetime.date.min.year:
+        date -= datetime.timedelta(days=date.day)
+        yield adjusted_eom_pay_day(date.year, date.month)
+        yield adjusted_mom_pay_day(date.year, date.month)
 
 
-def _forward_pay_day_generator(year: int, month: int) -> Generator[datetime.date, None, None]:
-    start = datetime.date(year, month, day=1)
+def _forward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, None, None]:
+    # current month
+    for pay_day in pay_days(date.year, date.month):
+        if pay_day > date:
+            yield pay_day
+
+    # subsequent months
+    start = datetime.date(date.year, date.month, day=1)
     for dt in dateutil.rrule.rrule(freq=dateutil.rrule.MONTHLY, dtstart=start):
         yield adjusted_mom_pay_day(dt.year, dt.month)
         yield adjusted_eom_pay_day(dt.year, dt.month)
 
 
 def _next_pay_day(date: datetime.date) -> datetime.date:
-    for pay_day in _forward_pay_day_generator(date.year, date.month):
-        if pay_day > date:
-            return pay_day
+    return next(
+        _forward_pay_day_generator(date)
+    )
 
 
 def _previous_pay_day(date: datetime.date) -> datetime.date:
-    for pay_day in _backward_pay_day_generator(date.year):
-        if date > pay_day:
-            return pay_day
+    return next(
+        _backward_pay_day_generator(date)
+    )
 
 
 def is_pay_day(date: datetime.date) -> bool:
@@ -97,6 +109,13 @@ def is_pay_day(date: datetime.date) -> bool:
 
 def next_pay_day(date: datetime.date) -> datetime.date:
     return _next_pay_day(date)
+
+
+def pay_days(year: int, month: int) -> Tuple[datetime.date, datetime.date]:
+    return (
+        adjusted_mom_pay_day(year, month),
+        adjusted_eom_pay_day(year, month)
+    )
 
 
 def previous_pay_day(date: datetime.date) -> datetime.date:

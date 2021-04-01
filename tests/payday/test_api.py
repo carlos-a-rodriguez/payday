@@ -62,6 +62,24 @@ class APITestCase(unittest.TestCase):
             today.replace(day=31)
         )
 
+    def test_pay_days_leap_year_and_holiday(self):
+        self.assertTupleEqual(
+            payday.api.pay_days(2016, 2),
+            (
+                datetime.date(2016, 2, 12),  # 15th is MLK Jr. Day
+                datetime.date(2016, 2, 29)
+            )
+        )
+
+    def test_pay_days_non_leap_year(self):
+        self.assertTupleEqual(
+            payday.api.pay_days(2019, 2),
+            (
+                datetime.date(2019, 2, 15),
+                datetime.date(2019, 2, 28)
+            )
+        )
+
     def test_previous_pay_day(self):
         today = datetime.date(2021, 4, 7)
         self.assertEqual(
