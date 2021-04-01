@@ -13,30 +13,30 @@ from payday.lib.holidays.bank import USBankHolidays
 MID_MONTH_DAY = 15
 
 
-def adjusted_eom_pay_day(year: int, month: int) -> datetime.date:
+def _adjusted_month_end_pay_day(year: int, month: int) -> datetime.date:
     return np.busday_offset(
-        unadjusted_eom_pay_day(year, month).strftime("%Y-%m-%d"),
+        _unadjusted_month_end_pay_day(year, month).strftime("%Y-%m-%d"),
         0,
         roll="preceding",
-        holidays=us_bank_holidays(year),
+        holidays=_us_bank_holidays(year),
     ).astype(datetime.date)
 
 
-def adjusted_mom_pay_day(year: int, month: int) -> datetime.date:
+def _adjusted_mid_month_pay_day(year: int, month: int) -> datetime.date:
     return np.busday_offset(
-        unadjusted_mom_pay_day(year, month).strftime("%Y-%m-%d"),
+        _unadjusted_mid_month_pay_day(year, month).strftime("%Y-%m-%d"),
         0,
         roll="preceding",
-        holidays=us_bank_holidays(year),
+        holidays=_us_bank_holidays(year),
     ).astype(datetime.date)
 
 
-def eom_day(year: int, month: int) -> int:
+def _last_day_of_month(year: int, month: int) -> int:
     _, day = calendar.monthrange(year, month)
     return day
 
 
-def us_bank_holidays(year: int) -> np.ndarray:
+def _us_bank_holidays(year: int) -> np.ndarray:
     holidays = USBankHolidays(years=[year])
     return np.array(
         [
@@ -48,22 +48,22 @@ def us_bank_holidays(year: int) -> np.ndarray:
     )
 
 
-def unadjusted_mom_pay_day(year: int, month: int) -> datetime.date:
+def _unadjusted_mid_month_pay_day(year: int, month: int) -> datetime.date:
     return datetime.date(year, month, day=MID_MONTH_DAY)
 
 
-def unadjusted_eom_pay_day(year: int, month: int) -> datetime.date:
+def _unadjusted_month_end_pay_day(year: int, month: int) -> datetime.date:
     return datetime.date(
         year,
         month,
-        eom_day(year, month)
+        _last_day_of_month(year, month)
     )
 
 
 def _is_pay_day(date: datetime.date) -> bool:
     if date.day > MID_MONTH_DAY:
-        return date == adjusted_eom_pay_day(date.year, date.month)
-    return date == adjusted_mom_pay_day(date.year, date.month)
+        return date == _adjusted_month_end_pay_day(date.year, date.month)
+    return date == _adjusted_mid_month_pay_day(date.year, date.month)
 
 
 def _backward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, None, None]:
@@ -75,8 +75,8 @@ def _backward_pay_day_generator(date: datetime.date) -> Generator[datetime.date,
     # previous months
     while date.year >= datetime.date.min.year:
         date -= datetime.timedelta(days=date.day)
-        yield adjusted_eom_pay_day(date.year, date.month)
-        yield adjusted_mom_pay_day(date.year, date.month)
+        yield _adjusted_month_end_pay_day(date.year, date.month)
+        yield _adjusted_mid_month_pay_day(date.year, date.month)
 
 
 def _forward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, None, None]:
@@ -88,8 +88,8 @@ def _forward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, 
     # subsequent months
     start = date + dateutil.relativedelta.relativedelta(months=1, day=1)
     for dt in dateutil.rrule.rrule(freq=dateutil.rrule.MONTHLY, dtstart=start):
-        yield adjusted_mom_pay_day(dt.year, dt.month)
-        yield adjusted_eom_pay_day(dt.year, dt.month)
+        yield _adjusted_mid_month_pay_day(dt.year, dt.month)
+        yield _adjusted_month_end_pay_day(dt.year, dt.month)
 
 
 def pay_day_iter(date: datetime.date, days=1, reverse=False) -> Iterator[datetime.date]:
@@ -112,8 +112,8 @@ def next_pay_day(date: datetime.date) -> datetime.date:
 
 def pay_days(year: int, month: int) -> Tuple[datetime.date, datetime.date]:
     return (
-        adjusted_mom_pay_day(year, month),
-        adjusted_eom_pay_day(year, month)
+        _adjusted_mid_month_pay_day(year, month),
+        _adjusted_month_end_pay_day(year, month)
     )
 
 
