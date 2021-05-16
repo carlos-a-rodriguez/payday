@@ -3,8 +3,8 @@ import calendar
 import datetime
 from typing import Generator, Iterator, Tuple
 
-import dateutil.relativedelta
-import dateutil.rrule
+from dateutil.relativedelta import relativedelta
+from dateutil.rrule import MONTHLY, rrule
 import numpy as np
 
 from payday.lib.holidays.bank import USBankHolidays
@@ -86,8 +86,8 @@ def _forward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, 
             yield pay_day
 
     # subsequent months
-    start = date + dateutil.relativedelta.relativedelta(months=1, day=1)
-    for dt in dateutil.rrule.rrule(freq=dateutil.rrule.MONTHLY, dtstart=start):
+    start = date + relativedelta(months=1, day=1)
+    for dt in rrule(freq=MONTHLY, dtstart=start):
         yield _adjusted_mid_month_pay_day(dt.year, dt.month)
         yield _adjusted_month_end_pay_day(dt.year, dt.month)
 
