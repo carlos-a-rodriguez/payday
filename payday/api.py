@@ -4,7 +4,6 @@ import datetime
 from itertools import dropwhile
 from typing import Generator, Iterator, Tuple
 
-from dateutil.relativedelta import relativedelta
 from dateutil.rrule import MONTHLY, rrule
 import numpy as np
 
@@ -101,7 +100,7 @@ def pay_day_iter(date: datetime.date, days=1, reverse=False) -> Iterator[datetim
     generator = _backward_pay_day_generator(date) if reverse else _forward_pay_day_generator(date)
     return iter(
         next(generator)
-        for day in range(days)
+        for _ in range(days)
     )
 
 
