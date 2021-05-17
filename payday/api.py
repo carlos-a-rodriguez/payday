@@ -1,6 +1,7 @@
 """payday APIs"""
 import calendar
 import datetime
+from itertools import dropwhile
 from typing import Generator, Iterator, Tuple
 
 from dateutil.relativedelta import relativedelta
@@ -28,6 +29,16 @@ def _adjusted_mid_month_pay_day(year: int, month: int) -> datetime.date:
         0,
         roll="preceding",
         holidays=_us_bank_holidays(year),
+    ).astype(datetime.date)
+
+
+def adjust_date(date: datetime.datetime) -> datetime.date:
+    """ date adjusted for weekends and holidays """
+    return np.busday_offset(
+        dates=date.strftime("%Y-%m-%d"),
+        offsets=0,
+        roll="preceding",
+        holidays=_us_bank_holidays(date.year)
     ).astype(datetime.date)
 
 
@@ -80,16 +91,10 @@ def _backward_pay_day_generator(date: datetime.date) -> Generator[datetime.date,
 
 
 def _forward_pay_day_generator(date: datetime.date) -> Generator[datetime.date, None, None]:
-    # current month
-    for pay_day in pay_days(date.year, date.month):
-        if pay_day > date:
-            yield pay_day
-
-    # subsequent months
-    start = date + relativedelta(months=1, day=1)
-    for dt in rrule(freq=MONTHLY, dtstart=start):
-        yield _adjusted_mid_month_pay_day(dt.year, dt.month)
-        yield _adjusted_month_end_pay_day(dt.year, dt.month)
+    gen = rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=date)
+    gen = dropwhile(lambda dt: dt.date() <= date, gen)
+    for pay_day in gen:
+        yield adjust_date(pay_day)
 
 
 def pay_day_iter(date: datetime.date, days=1, reverse=False) -> Iterator[datetime.date]:
