@@ -25,13 +25,17 @@ def bank_holidays(year: int) -> [datetime.date]:
     return [holiday for holiday in USBankHolidays(years=[year]).keys()]
 
 
+def is_pay_day(date: datetime.date) -> bool:
+    """ is date a pay day? """
+    return next_pay_day(date) == date
+
+
+def next_pay_day(date: datetime.date) -> datetime.date:
+    """ next pay day from the date provided (inclusive) """
+    return next(pay_days_gen(start=date))
+
+
 def pay_days_gen(start: datetime.date) -> Generator[datetime.date, None, None]:
     """ all pay days from start (inclusive) """
     for pay_day in rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=start):
         yield adjusted_date(pay_day)
-
-
-def is_pay_day(date: datetime.date) -> bool:
-    """ is date a pay day? """
-    for pay_day in pay_days_gen(start=date):
-        return date == pay_day

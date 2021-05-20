@@ -79,6 +79,17 @@ class APITestCase(unittest.TestCase):
             )
         )
 
+    def test_next_pay_date(self):
+        self.assertEqual(
+            payday.next_pay_day(datetime.date(2021, 5, 14)),
+            datetime.date(2021, 5, 14),
+            msg="next_pay_day should include the date specified"
+        )
+        self.assertEqual(
+            payday.next_pay_day(datetime.date(2021, 5, 15)),
+            datetime.date(2021, 5, 28),
+        )
+
     def test_pay_day_gen(self):
         gen = payday.pay_days_gen(start=datetime.date(2021, 4, 4))
         self.assertEqual(next(gen), datetime.date(2021, 4, 15))
