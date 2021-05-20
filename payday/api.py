@@ -1,14 +1,12 @@
 """payday APIs"""
 import datetime
+from functools import lru_cache
 from typing import Generator
 
 from dateutil.rrule import MONTHLY, rrule
 import numpy as np
 
 from payday.lib.holidays.bank import USBankHolidays
-
-
-BANK_HOLIDAYS = USBankHolidays()
 
 
 def adjusted_date(date: datetime.datetime) -> datetime.date:
@@ -21,10 +19,10 @@ def adjusted_date(date: datetime.datetime) -> datetime.date:
     ).astype(datetime.date)
 
 
+@lru_cache(maxsize=16)
 def bank_holidays(year: int) -> [datetime.date]:
     """ all the bank holidays for a given year """
-    _ = datetime.date(year=year, month=1, day=1) in BANK_HOLIDAYS  # cache holidays
-    return [holiday for holiday in BANK_HOLIDAYS.keys()]
+    return [holiday for holiday in USBankHolidays(years=[year]).keys()]
 
 
 def pay_days_gen(start: datetime.date) -> Generator[datetime.date, None, None]:
