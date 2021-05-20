@@ -12,7 +12,7 @@ pip install https://gitlab.com/carlos_rodriguez/payday.git
 
 ## Usage
 
-There are two main functions. The first checks whether the specified date is a pay day or not.
+Check whether a particular date is a pay day or not:
 
 ```shell
 >>> import datetime
@@ -23,7 +23,18 @@ False
 True
 ```
 
-The second is a pay day generator.
+Ask for the next pay day starting from a specified date (inclusive):
+
+```shell
+>>> import datetime
+>>> import payday
+>>> payday.next_pay_day(datetime.date.today())
+datetime.date(2021, 5, 28)
+>>> payday.next_pay_day(datetime.date(2022, 3, 2))
+datetime.date(2022, 3, 15)
+```
+
+Generate the next 5 pay days starting from a particular date (inclusive):
 
 ```shell
 >>> import datetime
