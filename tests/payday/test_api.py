@@ -12,7 +12,6 @@ class APITestCase(unittest.TestCase):
 
     def test_bank_holidays(self):
         self.assertListEqual(
-            payday.api.bank_holidays(2022),
             [
                 datetime.date(2022, 1, 1),
                 datetime.date(2021, 12, 31),
@@ -26,7 +25,8 @@ class APITestCase(unittest.TestCase):
                 datetime.date(2022, 11, 24),
                 datetime.date(2022, 12, 25),
                 datetime.date(2022, 12, 26),
-            ]
+            ],
+            payday.api.bank_holidays(2022),
         )
 
     def test_bank_holidays_cache(self):
@@ -34,8 +34,8 @@ class APITestCase(unittest.TestCase):
         _ = payday.api.bank_holidays(2021)  # hit
         _ = payday.api.bank_holidays(2022)  # miss
 
-        self.assertEqual(payday.api.bank_holidays.cache_info().hits, 1)
-        self.assertEqual(payday.api.bank_holidays.cache_info().misses, 2)
+        self.assertEqual(1, payday.api.bank_holidays.cache_info().hits)
+        self.assertEqual(2, payday.api.bank_holidays.cache_info().misses)
 
     def test_is_pay_day_month_end(self):
         self.assertTrue(
@@ -79,20 +79,21 @@ class APITestCase(unittest.TestCase):
             )
         )
 
-    def test_next_pay_date(self):
+    def test_next_pay_date_on_date(self):
         self.assertEqual(
-            payday.next_pay_day(datetime.date(2021, 5, 14)),
             datetime.date(2021, 5, 14),
-            msg="next_pay_day should include the date specified"
+            payday.next_pay_day(datetime.date(2021, 5, 14)),
         )
+
+    def test_next_pay_date_in_the_future(self):
         self.assertEqual(
-            payday.next_pay_day(datetime.date(2021, 5, 15)),
             datetime.date(2021, 5, 28),
+            payday.next_pay_day(datetime.date(2021, 5, 15)),
         )
 
     def test_pay_day_gen(self):
         gen = payday.pay_days_gen(date=datetime.date(2021, 4, 4))
-        self.assertEqual(next(gen), datetime.date(2021, 4, 15))
-        self.assertEqual(next(gen), datetime.date(2021, 4, 30))
-        self.assertEqual(next(gen), datetime.date(2021, 5, 14))  # weekend adjustment
-        self.assertEqual(next(gen), datetime.date(2021, 5, 28))  # holiday adjustment
+        self.assertEqual(datetime.date(2021, 4, 15), next(gen))
+        self.assertEqual(datetime.date(2021, 4, 30), next(gen))
+        self.assertEqual(datetime.date(2021, 5, 14), next(gen))  # weekend adjustment
+        self.assertEqual(datetime.date(2021, 5, 28), next(gen))  # holiday adjustment

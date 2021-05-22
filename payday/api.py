@@ -9,10 +9,10 @@ import numpy as np
 from payday.lib.holidays.bank import USBankHolidays
 
 
-def adjusted_date(date: datetime.datetime) -> datetime.date:
+def adjusted_date(date: datetime.date) -> datetime.date:
     """ date adjusted for weekends and holidays """
     return np.busday_offset(
-        dates=date.strftime("%Y-%m-%d"),
+        dates=date,
         offsets=0,
         roll="preceding",
         holidays=bank_holidays(date.year),
@@ -37,5 +37,6 @@ def next_pay_day(date: datetime.date) -> datetime.date:
 
 def pay_days_gen(date: datetime.date) -> Generator[datetime.date, None, None]:
     """ all pay days from start (inclusive) """
-    for pay_day in rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=date):
-        yield adjusted_date(pay_day)
+    for dt in rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=date):
+        if (pay_day := adjusted_date(dt.date())) >= date:
+            yield pay_day
