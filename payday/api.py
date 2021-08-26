@@ -41,10 +41,27 @@ def pay_days_gen(
     until: Optional[datetime.date] = None,
 ) -> Generator[datetime.date, None, None]:
     """generator for pay days from start and stopping at until"""
-    rule = rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=start, until=until)
-    adjusted = map(lambda dt: adjusted_date(dt.date()), rule)
+    generator = dropwhile(
+        lambda date: date < start, adjusted_pay_days_gen(start, until)
+    )
 
-    future = dropwhile(lambda date: date < start, adjusted)
-
-    for date in future:
+    for date in generator:
         yield date
+
+
+def adjusted_pay_days_gen(
+    start: datetime.date, until: Optional[datetime.date] = None
+) -> Generator[datetime.date, None, None]:
+    """pay day (adjusted for weekends and holidays) generator"""
+    for date in unadjusted_pay_days_gen(start, until):
+        yield adjusted_date(date)
+
+
+def unadjusted_pay_days_gen(
+    start: datetime.date, until: Optional[datetime.date] = None
+) -> Generator[datetime.date, None, None]:
+    """unadjusted pay day generator"""
+    for dt in rrule(
+        freq=MONTHLY, bymonthday=(15, -1), dtstart=start, until=until
+    ):
+        yield dt.date()
