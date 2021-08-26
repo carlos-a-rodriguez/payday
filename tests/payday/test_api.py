@@ -71,5 +71,7 @@ class APITestCase(unittest.TestCase):
         gen = payday.pay_days_gen(date=datetime.date(2021, 4, 4))
         self.assertEqual(datetime.date(2021, 4, 15), next(gen))
         self.assertEqual(datetime.date(2021, 4, 30), next(gen))
-        self.assertEqual(datetime.date(2021, 5, 14), next(gen))  # weekend adjustment
-        self.assertEqual(datetime.date(2021, 5, 28), next(gen))  # holiday adjustment
+        # weekend adjustment
+        self.assertEqual(datetime.date(2021, 5, 14), next(gen))
+        # holiday adjustment
+        self.assertEqual(datetime.date(2021, 5, 28), next(gen))
