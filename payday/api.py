@@ -1,7 +1,8 @@
 """payday APIs"""
 import datetime
 from functools import lru_cache
-from typing import Generator, List
+from itertools import dropwhile
+from typing import Generator, List, Optional
 
 from dateutil.rrule import MONTHLY, rrule
 import numpy as np
@@ -32,11 +33,18 @@ def is_pay_day(date: datetime.date) -> bool:
 
 def next_pay_day(date: datetime.date) -> datetime.date:
     """next pay day from the date provided (inclusive)"""
-    return next(pay_days_gen(date=date))
+    return next(pay_days_gen(start=date))
 
 
-def pay_days_gen(date: datetime.date) -> Generator[datetime.date, None, None]:
-    """all pay days from start (inclusive)"""
-    for dt in rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=date):
-        if (pay_day := adjusted_date(dt.date())) >= date:
-            yield pay_day
+def pay_days_gen(
+    start: datetime.date,
+    until: Optional[datetime.date] = None,
+) -> Generator[datetime.date, None, None]:
+    """generator for pay days from start and stopping at until"""
+    rule = rrule(freq=MONTHLY, bymonthday=(15, -1), dtstart=start, until=until)
+    adjusted = map(lambda dt: adjusted_date(dt.date()), rule)
+
+    future = dropwhile(lambda date: date < start, adjusted)
+
+    for date in future:
+        yield date
