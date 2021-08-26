@@ -39,11 +39,11 @@ def pay_days_gen(
     until: Optional[datetime.date] = None,
 ) -> Generator[datetime.date, None, None]:
     """generator for pay days from start and stopping at until"""
-    generator = dropwhile(
+    iterator = dropwhile(
         lambda date: date < start, adjusted_pay_days_gen(start, until)
     )
 
-    for date in generator:
+    for date in iterator:
         yield date
 
 
