@@ -1,6 +1,5 @@
 """payday APIs"""
 import datetime
-from functools import lru_cache
 from itertools import dropwhile
 from typing import Generator, List, Optional
 
@@ -20,7 +19,6 @@ def adjusted_date(date: datetime.date) -> datetime.date:
     ).astype(datetime.date)
 
 
-@lru_cache(maxsize=16)
 def bank_holidays(year: int) -> List[datetime.date]:
     """all the bank holidays for a given year"""
     return [holiday for holiday in USBankHolidays(years=[year]).keys()]

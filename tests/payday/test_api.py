@@ -7,9 +7,6 @@ import payday.api
 
 
 class APITestCase(unittest.TestCase):
-    def setUp(self):
-        payday.api.bank_holidays.cache_clear()
-
     def test_bank_holidays(self):
         self.assertListEqual(
             [
@@ -29,14 +26,6 @@ class APITestCase(unittest.TestCase):
             ],
             payday.api.bank_holidays(2022),
         )
-
-    def test_bank_holidays_cache(self):
-        _ = payday.api.bank_holidays(2021)  # miss
-        _ = payday.api.bank_holidays(2021)  # hit
-        _ = payday.api.bank_holidays(2022)  # miss
-
-        self.assertEqual(1, payday.api.bank_holidays.cache_info().hits)
-        self.assertEqual(2, payday.api.bank_holidays.cache_info().misses)
 
     def test_is_pay_day_month_end(self):
         self.assertTrue(payday.is_pay_day(datetime.date(2021, 3, 31)))
