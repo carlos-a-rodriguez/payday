@@ -38,46 +38,22 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(2, payday.api.bank_holidays.cache_info().misses)
 
     def test_is_pay_day_month_end(self):
-        self.assertTrue(
-            payday.is_pay_day(
-                datetime.date(2021, 3, 31)
-            )
-        )
+        self.assertTrue(payday.is_pay_day(datetime.date(2021, 3, 31)))
 
     def test_is_pay_day_month_end_holiday(self):
-        self.assertFalse(
-            payday.is_pay_day(
-                datetime.date(2021, 5, 31)
-            )
-        )
+        self.assertFalse(payday.is_pay_day(datetime.date(2021, 5, 31)))
 
     def test_is_pay_day_month_end_holiday_adjustment(self):
-        self.assertTrue(
-            payday.is_pay_day(
-                datetime.date(2021, 5, 28)
-            )
-        )
+        self.assertTrue(payday.is_pay_day(datetime.date(2021, 5, 28)))
 
     def test_is_pay_day_mid_month(self):
-        self.assertTrue(
-            payday.is_pay_day(
-                datetime.date(2021, 1, 15)
-            )
-        )
+        self.assertTrue(payday.is_pay_day(datetime.date(2021, 1, 15)))
 
     def test_is_pay_day_mid_month_holiday(self):
-        self.assertFalse(
-            payday.is_pay_day(
-                datetime.date(2021, 2, 15)
-            )
-        )
+        self.assertFalse(payday.is_pay_day(datetime.date(2021, 2, 15)))
 
     def test_is_pay_day_mid_month_holiday_adjustment(self):
-        self.assertTrue(
-            payday.is_pay_day(
-                datetime.date(2021, 2, 12)
-            )
-        )
+        self.assertTrue(payday.is_pay_day(datetime.date(2021, 2, 12)))
 
     def test_next_pay_date_on_date(self):
         self.assertEqual(
