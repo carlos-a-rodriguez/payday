@@ -18,6 +18,7 @@ class APITestCase(unittest.TestCase):
                 datetime.date(2022, 1, 17),
                 datetime.date(2022, 2, 21),
                 datetime.date(2022, 5, 30),
+                datetime.date(2022, 6, 19),
                 datetime.date(2022, 7, 4),
                 datetime.date(2022, 9, 5),
                 datetime.date(2022, 10, 10),
