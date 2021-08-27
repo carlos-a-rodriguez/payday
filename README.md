@@ -7,7 +7,7 @@ date is chosen.
 ## Installation
 
 ```commandline
-pip install https://github.com/carlos-a-rodriguez/payday.git
+pip install git+https://github.com/carlos-a-rodriguez/payday.git
 ```
 
 ## Usage
