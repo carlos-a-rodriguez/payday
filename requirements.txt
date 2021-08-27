@@ -1,3 +1,4 @@
 holidays
 numpy
 python-dateutil
+wheel
